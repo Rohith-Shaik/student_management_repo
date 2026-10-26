@@ -1,0 +1,197 @@
+
+{% extends 'students/base.html' %}
+
+{% block title %}Student Report Card{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Student Report Card</h2>
+        <div>
+            <button onclick="window.print()"
+                    class="btn btn-success">
+                Print Report Card
+            </button>
+            <a href="{% url 'students:results_list' %}"
+               class="btn btn-secondary">
+                Back
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm" id="report-card">
+        <div class="card-body p-4">
+
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">STUDENT REPORT CARD</h2>
+                <p class="text-muted mb-0">
+                    Student Management System
+                </p>
+                <hr>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-2">
+                    <strong>Student ID:</strong>
+                    {{ student.student_id }}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <strong>Student Name:</strong>
+                    {{ student.first_name }} {{ student.last_name }}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <strong>Course:</strong>
+                    {% if student.course_ref %}
+                        {{ student.course_ref.course_name }}
+                    {% else %}
+                        {{ student.course }}
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <strong>Email:</strong>
+                    {{ student.email }}
+                </div>
+            </div>
+
+            <h5 class="mb-3">Examination Results</h5>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Subject</th>
+                            <th>Exam</th>
+                            <th>Date</th>
+                            <th>Marks Obtained</th>
+                            <th>Maximum Marks</th>
+                            <th>Percentage</th>
+                            <th>Grade</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for mark in marks %}
+                        <tr>
+                            <td>{{ mark.exam.subject.subject_name }}</td>
+                            <td>{{ mark.exam.exam_name }}</td>
+                            <td>{{ mark.exam.exam_date|date:"d M Y" }}</td>
+                            <td>{{ mark.marks_obtained|floatformat:0 }}</td>
+                            <td>{{ mark.exam.max_marks|floatformat:0 }}</td>
+                            <td>{{ mark.percentage }}%</td>
+                            <td><strong>{{ mark.grade }}</strong></td>
+                            <td>
+                                {% if mark.result_status == 'Pass' %}
+                                    <span class="badge bg-success">Pass</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Fail</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                No examination marks have been recorded
+                                for this student.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h5 class="mt-4 mb-3">Overall Performance</h5>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body">
+                            <p class="text-muted mb-1">Total Marks</p>
+                            <h4>
+                                {{ total_obtained|floatformat:0 }} /
+                                {{ total_maximum|floatformat:0 }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body">
+                            <p class="text-muted mb-1">Overall Percentage</p>
+                            <h4>{{ percentage }}%</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body">
+                            <p class="text-muted mb-1">Overall Result</p>
+                            <h4>
+                                {% if overall_result == 'Pass' %}
+                                    <span class="text-success">PASS</span>
+                                {% elif overall_result == 'Fail' %}
+                                    <span class="text-danger">FAIL</span>
+                                {% else %}
+                                    <span class="text-secondary">
+                                        NO RESULTS
+                                    </span>
+                                {% endif %}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-6">
+                    <p>________________________</p>
+                    <p>Class Teacher Signature</p>
+                </div>
+                <div class="col-6 text-end">
+                    <p>________________________</p>
+                    <p>Principal Signature</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    nav, .navbar, footer, .btn {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+    }
+
+    #report-card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card-body {
+        padding: 0 !important;
+    }
+
+    .table {
+        font-size: 10px;
+    }
+}
+</style>
+{% endblock %}

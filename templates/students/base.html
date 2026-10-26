@@ -1,0 +1,702 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}Student Management{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --sidebar-bg: #eff6ff;
+            --sidebar-text: #334155;
+            --page-bg: #f7faff;
+            --border-color: #dbeafe;
+            --heading-color: #172554;
+        }
+
+        body {
+            margin: 0;
+            background: var(--page-bg);
+            color: #334155;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 15px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* ===== TOP NAVBAR ===== */
+        .topbar {
+            min-height: 72px;
+            background: linear-gradient(90deg, #ffffff, #eff6ff);
+            border-bottom: 1px solid #bfdbfe;
+            box-shadow: 0 3px 12px rgba(37, 99, 235, 0.07);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            color: #1d4ed8;
+            font-size: 1.12rem;
+            font-weight: 750;
+        }
+
+        .brand:hover {
+            color: #1e40af;
+        }
+
+        .brand-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+            font-weight: 800;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .app-sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: linear-gradient(180deg, #eff6ff, #ffffff);
+            color: #1e293b;
+            border-right: 1px solid #dbeafe;
+        }
+
+        .sidebar-heading {
+            padding: 23px 20px 9px;
+            color: #64748b;
+            font-size: 0.70rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            color: #334155;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link:focus {
+            background: #dbeafe;
+            color: #1d4ed8;
+            transform: translateX(2px);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(90deg, #2563eb, #4f7df3);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .sidebar-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            font-size: 1.05rem;
+        }
+
+        .sidebar-footer {
+            margin: 20px 12px 12px;
+            padding: 14px;
+            border-top: 1px solid #dbeafe;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .sidebar-footer .footer-title {
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-area {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .page-content {
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-content h1,
+        .page-content h2,
+        .page-content h3,
+        .page-content h4,
+        .page-content h5 {
+            color: var(--heading-color);
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            overflow: hidden;
+            border: 1px solid #dbeafe;
+            border-radius: 15px;
+            background: #ffffff;
+            box-shadow: 0 5px 18px rgba(37, 99, 235, 0.06);
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            background: #eff6ff;
+            color: #1e40af;
+            border-bottom: 1px solid #dbeafe;
+            font-weight: 700;
+        }
+
+        .card-body {
+            padding: 22px;
+        }
+
+        /* ===== COLORFUL BUTTONS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            border-color: #16a34a;
+        }
+
+        .btn-warning {
+            color: #422006;
+        }
+
+        .btn-info {
+            color: #083344;
+        }
+
+        /* ===== FORMS ===== */
+        .form-label {
+            margin-bottom: 7px;
+            color: #334155;
+            font-weight: 650;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 43px;
+            border: 1px solid #cbdcf7;
+            border-radius: 9px;
+            background-color: #ffffff;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.13);
+        }
+
+        /* ===== ALL TABLES ===== */
+        .table-responsive {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            background: #ffffff;
+        }
+
+        .table {
+            margin-bottom: 0;
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            padding: 15px 12px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #bfdbfe;
+            font-size: 0.79rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 13px 12px;
+            background: #ffffff;
+            color: #334155;
+            border-color: #e2e8f0;
+        }
+
+        .table-striped > tbody > tr:nth-of-type(odd) > * {
+            background-color: #f0f7ff;
+            color: #334155;
+        }
+
+        .table tbody tr:hover > * {
+            background-color: #e0efff;
+            color: #1e3a8a;
+        }
+
+        /* ===== ALERTS / MESSAGES ===== */
+        .alert {
+            border: 1px solid transparent;
+            border-radius: 11px;
+            box-shadow: 0 3px 12px rgba(37, 99, 235, 0.05);
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .alert-danger,
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            font-weight: 650;
+            letter-spacing: 0.1px;
+        }
+
+        /* ===== DESKTOP SIDEBAR ===== */
+        @media (min-width: 992px) {
+            .app-sidebar {
+                position: sticky;
+                top: 0;
+                height: calc(100vh - 72px);
+                overflow-y: auto;
+            }
+        }
+
+        /* ===== MOBILE NAVIGATION ===== */
+        @media (max-width: 991.98px) {
+            .app-sidebar {
+                width: 280px;
+                border: 0;
+            }
+
+            .app-sidebar .offcanvas-header {
+                background: #eff6ff;
+                color: #1e3a8a;
+                border-bottom: 1px solid #dbeafe;
+            }
+
+            .app-sidebar .offcanvas-title {
+                color: #1e3a8a;
+            }
+
+            .app-sidebar .btn-close {
+                filter: none;
+            }
+
+            .page-content {
+                padding: 22px 16px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .topbar {
+                min-height: 64px;
+            }
+
+            .brand {
+                font-size: 0.93rem;
+            }
+
+            .brand-mark {
+                width: 34px;
+                height: 34px;
+            }
+
+            .page-content {
+                padding: 18px 12px;
+            }
+
+            .card-body {
+                padding: 16px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<!-- ===== TOP NAVBAR ===== -->
+<nav class="topbar navbar px-3 px-lg-4">
+    <div class="container-fluid p-0">
+
+        <div class="d-flex align-items-center">
+
+            {% if request.user.is_authenticated %}
+                <button
+                    class="btn btn-outline-primary me-3 d-lg-none"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#appSidebar"
+                    aria-controls="appSidebar"
+                    aria-label="Open navigation">
+                    ☰
+                </button>
+            {% endif %}
+
+            <a class="brand"
+               href="{% if request.user.is_authenticated %}{% if request.user.is_staff %}{% url 'students:dashboard' %}{% else %}{% url 'students:student_dashboard' %}{% endif %}{% else %}{% url 'student_login' %}{% endif %}">
+                <span class="brand-mark">S</span>
+                <span>Student Management</span>
+            </a>
+
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+
+            {% if request.user.is_authenticated %}
+
+                <div class="d-none d-sm-block text-end me-2">
+                    <div class="fw-semibold">
+                        {{ request.user.username }}
+                    </div>
+
+                    <small class="text-muted">
+                        {% if request.user.is_staff %}
+                            Administrator
+                        {% else %}
+                            Student
+                        {% endif %}
+                    </small>
+                </div>
+
+                <form method="post"
+                      action="{% url 'logout' %}"
+                      class="m-0">
+                    {% csrf_token %}
+
+                    <button type="submit"
+                            class="btn btn-outline-danger btn-sm">
+                        Logout
+                    </button>
+                </form>
+
+            {% else %}
+
+                <a class="btn btn-primary btn-sm"
+                   href="{% url 'student_login' %}">
+                    Student Login
+                </a>
+
+                <a class="btn btn-outline-primary btn-sm"
+                   href="{% url 'admin_login' %}">
+                    Admin Login
+                </a>
+
+            {% endif %}
+
+        </div>
+    </div>
+</nav>
+
+<!-- ===== PAGE LAYOUT ===== -->
+<div class="d-lg-flex align-items-stretch">
+
+    <!-- Sidebar only for authenticated users -->
+    {% if request.user.is_authenticated %}
+
+        <aside
+            class="app-sidebar offcanvas-lg offcanvas-start"
+            tabindex="-1"
+            id="appSidebar"
+            aria-labelledby="appSidebarLabel">
+
+            <div class="offcanvas-header d-lg-none">
+                <h5 class="offcanvas-title"
+                    id="appSidebarLabel">
+                    Navigation
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="offcanvas-body p-0 d-flex flex-column">
+
+                {% if request.user.is_staff %}
+
+                    <div class="sidebar-heading">Overview</div>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:dashboard' %}">
+                        <span class="sidebar-icon">⌂</span>
+                        Admin Dashboard
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:statistics_dashboard' %}">
+                        <span class="sidebar-icon">▥</span>
+                        Statistics Dashboard
+                    </a>
+
+                    <div class="sidebar-heading">Students & Courses</div>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:student_list' %}">
+                        <span class="sidebar-icon">♙</span>
+                        Students
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:student_create' %}">
+                        <span class="sidebar-icon">＋</span>
+                        Add Student
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:course_list' %}">
+                        <span class="sidebar-icon">▤</span>
+                        Courses
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:course_create' %}">
+                        <span class="sidebar-icon">＋</span>
+                        Add Course
+                    </a>
+
+                    <div class="sidebar-heading">Academics</div>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:subject_create' %}">
+                        <span class="sidebar-icon">▧</span>
+                        Add Subject
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:exam_create' %}">
+                        <span class="sidebar-icon">✎</span>
+                        Add Exam
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:enter_marks' %}">
+                        <span class="sidebar-icon">✓</span>
+                        Enter Marks
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:results_list' %}">
+                        <span class="sidebar-icon">▥</span>
+                        Results
+                    </a>
+
+                    <div class="sidebar-heading">Attendance</div>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:mark_attendance' %}">
+                        <span class="sidebar-icon">✓</span>
+                        Mark Attendance
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:attendance_list' %}">
+                        <span class="sidebar-icon">◷</span>
+                        Attendance History
+                    </a>
+
+                     <!-- Fee Management -->
+                    <div class="sidebar-heading">Fee Management</div>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:fee_list' %}">
+                        <span class="sidebar-icon">₹</span>
+                        Fee Records
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:assign_fee' %}">
+                        <span class="sidebar-icon">＋</span>
+                        Assign Fee
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:fee_payment_history' %}">
+                        <span class="sidebar-icon">▤</span>
+                        Payment History
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:fee_recycle_bin' %}">
+                        <span class="sidebar-icon">♻</span>
+                        Fee Recycle Bin
+                    </a>
+                    
+                    <a href="{% url 'students:attendance_report' %}"
+                       class="sidebar-link">
+                        <span class="sidebar-icon">📊</span>
+                        <span>Attendance Reports</span>
+                    </a>
+                    
+                    
+                    <a href="{% url 'students:low_attendance_students' %}"
+                       class="sidebar-link">
+                        <span class="sidebar-icon">⚠️</span>
+                        <span>Low Attendance Alerts</span>
+                    </a>
+                    
+                    <a href="{% url 'students:admin_registration_requests' %}"
+                       class="btn btn-dark">
+                        Manage Admin Requests
+                    </a>
+
+                {% else %}
+
+                    <div class="sidebar-heading">Student Portal</div>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:student_dashboard' %}">
+                        <span class="sidebar-icon">⌂</span>
+                        My Dashboard
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:student_attendance' %}">
+                        <span class="sidebar-icon">◷</span>
+                        My Attendance
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:my_results' %}">
+                        <span class="sidebar-icon">▥</span>
+                        My Results
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:student_fee_balances' %}">
+                        <span class="sidebar-icon">₹</span>
+                        My Fee Balances
+                    </a>
+
+                    <a class="sidebar-link"
+                       href="{% url 'students:student_fee_payment_history' %}">
+                        <span class="sidebar-icon">▤</span>
+                        My Payment History
+                    </a>
+                    
+                    <a href="{% url 'students:my_attendance_report' %}"
+                       class="sidebar-link">
+                        <span class="sidebar-icon">📊</span>
+                        <span>My Attendance Report</span>
+                    </a>
+
+                {% endif %}
+
+                <div class="sidebar-footer mt-auto">
+                    <div class="footer-title">
+                        Student Management System
+                    </div>
+                    <div class="mt-1">Academic Portal</div>
+                </div>
+
+            </div>
+        </aside>
+
+    {% endif %}
+
+    <!-- ===== SHARED CONTENT: DO NOT RENAME THIS BLOCK ===== -->
+    <div class="main-area">
+        <main class="page-content">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                         role="alert">
+
+                        {{ message }}
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+
+        </main>
+    </div>
+
+</div>
+
+<!-- Bootstrap JavaScript: existing dependency retained -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

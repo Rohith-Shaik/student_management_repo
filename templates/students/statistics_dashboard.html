@@ -1,0 +1,265 @@
+
+{% extends 'students/base.html' %}
+
+{% block title %}Statistics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Statistics Dashboard</h2>
+            <p class="text-muted mb-0">
+                Overview of your Student Management System
+            </p>
+        </div>
+        <span class="badge bg-primary p-2">Admin Dashboard</span>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total Students</div>
+                    <h2 class="fw-bold text-primary">
+                        {{ total_students }}
+                    </h2>
+                    <a href="{% url 'students:student_list' %}"
+                       class="small">View students</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total Courses</div>
+                    <h2 class="fw-bold text-success">
+                        {{ total_courses }}
+                    </h2>
+                    <a href="{% url 'students:course_list' %}"
+                       class="small">View courses</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total Subjects</div>
+                    <h2 class="fw-bold text-info">
+                        {{ total_subjects }}
+                    </h2>
+                    <a href="{% url 'students:subject_create' %}"
+                       class="small">Add subject</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total Exams</div>
+                    <h2 class="fw-bold text-warning">
+                        {{ total_exams }}
+                    </h2>
+                    <a href="{% url 'students:exam_create' %}"
+                       class="small">Add exam</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Attendance and results cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Attendance Rate</div>
+                    <h2 class="fw-bold text-success">
+                        {{ attendance_rate }}%
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Present records out of
+                        {{ total_attendance }} attendance records
+                    </p>
+                    <a href="{% url 'students:attendance_list' %}"
+                       class="small">View attendance history</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Saved Exam Results</div>
+                    <h2 class="fw-bold text-primary">
+                        {{ total_results }}
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Total saved student-exam mark records
+                    </p>
+                    <a href="{% url 'students:results_list' %}"
+                       class="small">View all results</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">
+                        Attendance Breakdown
+                    </h5>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">
+                        Average Marks by Subject
+                    </h5>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="marksChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Quick links -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h5 class="fw-bold mb-3">Quick Actions</h5>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'students:student_create' %}"
+                   class="btn btn-primary">
+                    Add Student
+                </a>
+
+                <a href="{% url 'students:course_create' %}"
+                   class="btn btn-success">
+                    Add Course
+                </a>
+
+                <a href="{% url 'students:mark_attendance' %}"
+                   class="btn btn-info">
+                    Mark Attendance
+                </a>
+
+                <a href="{% url 'students:enter_marks' %}"
+                   class="btn btn-warning">
+                    Enter Marks
+                </a>
+
+                <a href="{% url 'students:results_list' %}"
+                   class="btn btn-dark">
+                    View Results
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Safely pass Django data into JavaScript -->
+{{ attendance_labels|json_script:"attendance-labels" }}
+{{ attendance_data|json_script:"attendance-data" }}
+{{ subject_labels|json_script:"subject-labels" }}
+{{ average_marks_data|json_script:"average-marks-data" }}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const attendanceLabels = JSON.parse(
+        document.getElementById('attendance-labels').textContent
+    );
+    const attendanceData = JSON.parse(
+        document.getElementById('attendance-data').textContent
+    );
+    const subjectLabels = JSON.parse(
+        document.getElementById('subject-labels').textContent
+    );
+    const averageMarksData = JSON.parse(
+        document.getElementById('average-marks-data').textContent
+    );
+
+    // Attendance doughnut chart
+    new Chart(document.getElementById('attendanceChart'), {
+        type: 'doughnut',
+        data: {
+            labels: attendanceLabels,
+            datasets: [{
+                data: attendanceData,
+                backgroundColor: [
+                    '#198754',
+                    '#dc3545',
+                    '#ffc107',
+                    '#0dcaf0'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Average marks by subject
+    new Chart(document.getElementById('marksChart'), {
+        type: 'bar',
+        data: {
+            labels: subjectLabels,
+            datasets: [{
+                label: 'Average Marks Obtained',
+                data: averageMarksData,
+                backgroundColor: '#0d6efd',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Average marks'
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

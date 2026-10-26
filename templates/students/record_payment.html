@@ -1,0 +1,70 @@
+
+{% extends 'students/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="mb-4">
+        <h2 class="fw-bold">Record Fee Payment</h2>
+        <p class="text-muted">Enter the payment details below.</p>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4" style="max-width: 800px;">
+        <div class="card-body">
+            <h5 class="fw-bold">{{ fee.student }}</h5>
+            <p class="mb-1">Fee Type: {{ fee.fee_type }}</p>
+            <p class="mb-1">Academic Year: {{ fee.academic_year }}</p>
+            <p class="mb-1">
+                Total Fee: <strong>₹{{ fee.total_amount|floatformat:2 }}</strong>
+            </p>
+            <p class="mb-1">
+                Amount Paid: <strong class="text-success">₹{{ fee.amount_paid|floatformat:2 }}</strong>
+            </p>
+            <p class="mb-0">
+                Outstanding Balance:
+                <strong class="text-danger">₹{{ fee.balance|floatformat:2 }}</strong>
+            </p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="max-width: 800px;">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+
+                    {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        Save Payment
+                    </button>
+                    <a href="{% url 'students:fee_list' %}"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

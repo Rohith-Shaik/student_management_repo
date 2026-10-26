@@ -1,0 +1,118 @@
+
+{% extends 'students/base.html' %}
+
+{% block content %}
+    <form method="post"
+      action="{% url 'students:send_low_attendance_alerts' %}"
+      onsubmit="return confirm('Send email alerts to students below 75% attendance?');">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-warning">
+        Send Low Attendance Email Alerts
+    </button>
+    </form>
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Low Attendance Alerts</h2>
+            <p class="text-muted mb-0">
+                Students with attendance below {{ threshold }}%
+            </p>
+        </div>
+
+        <a href="{% url 'students:attendance_report' %}"
+           class="btn btn-outline-primary">
+            All Attendance Reports
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Students Below 75%</h6>
+                    <h2 class="text-danger fw-bold">
+                        {{ total_low_attendance }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            {% if low_attendance %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Course</th>
+                            <th>Present</th>
+                            <th>Total Records</th>
+                            <th>Attendance %</th>
+                            <th>Alert</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for student in low_attendance %}
+                        <tr>
+                            <td>{{ student.student_id }}</td>
+
+                            <td>
+                                {{ student.first_name }}
+                                {{ student.last_name }}
+                            </td>
+
+                            <td>
+                                {% if student.course_ref %}
+                                    {{ student.course_ref.course_name }}
+                                {% else %}
+                                    {{ student.course }}
+                                {% endif %}
+                            </td>
+
+                            <td>{{ student.present_days }}</td>
+                            <td>{{ student.total_days }}</td>
+
+                            <td>
+                                <span class="badge bg-danger">
+                                    {{ student.attendance_percentage }}%
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="text-danger fw-semibold">
+                                    Low Attendance
+                                </span>
+                            </td>
+
+                            <td>
+                                <a href="{% url 'students:individual_attendance_report' student.pk %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View Report
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+            <div class="alert alert-success mb-0">
+                <strong>Good news!</strong>
+                No students with recorded attendance are below
+                {{ threshold }}%.
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

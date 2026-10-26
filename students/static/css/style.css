@@ -1,0 +1,69 @@
+
+/* General page styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fb;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Main content */
+.main-content {
+    padding: 25px;
+}
+
+/* Page headings */
+h1, h2, h3 {
+    color: #243b53;
+}
+
+/* Dashboard cards */
+.dashboard-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Buttons */
+.btn-custom {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-custom:hover {
+    background-color: #0b5ed7;
+    color: white;
+}
+
+/* Tables */
+.table-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow-x: auto;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 12px;
+    }
+
+    .dashboard-card {
+        padding: 15px;
+    }
+}

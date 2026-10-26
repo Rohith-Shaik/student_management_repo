@@ -1,0 +1,77 @@
+
+{% extends 'students/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Edit Student Marks</h4>
+        </div>
+
+        <div class="card-body">
+            <p>
+                <strong>Student:</strong>
+                {{ mark.student.student_id }} -
+                {{ mark.student.first_name }} {{ mark.student.last_name }}
+            </p>
+
+            <p>
+                <strong>Subject:</strong>
+                {{ mark.exam.subject.subject_name }}
+            </p>
+
+            <p>
+                <strong>Exam:</strong> {{ mark.exam.exam_name }}
+            </p>
+
+            <p>
+                <strong>Maximum Marks:</strong>
+                {{ mark.exam.max_marks|floatformat:0 }}
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="marks_obtained" class="form-label">
+                        Marks Obtained
+                    </label>
+                    <input
+                        type="number"
+                        id="marks_obtained"
+                        name="marks_obtained"
+                        class="form-control"
+                        min="0"
+                        max="{{ mark.exam.max_marks|floatformat:0 }}"
+                        step="1"
+                        value="{{ mark.marks_obtained|floatformat:0 }}"
+                        required
+                    >
+                </div>
+
+                <div class="mb-3">
+                    <label for="remarks" class="form-label">
+                        Remarks
+                    </label>
+                    <input
+                        type="text"
+                        id="remarks"
+                        name="remarks"
+                        class="form-control"
+                        value="{{ mark.remarks }}"
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Save Changes
+                </button>
+
+                <a href="{% url 'students:results_list' %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

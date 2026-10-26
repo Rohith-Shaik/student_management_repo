@@ -1,0 +1,41 @@
+
+{% extends 'students/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Permanently Delete Student</h4>
+        </div>
+
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <strong>Warning:</strong>
+                This action cannot be undone. Students with related
+                records cannot be permanently deleted.
+            </div>
+
+            <p>
+                Are you sure you want to permanently delete
+                <strong>
+                    {{ student.first_name }} {{ student.last_name }}
+                </strong>
+                (ID: {{ student.student_id }})?
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <button type="submit" class="btn btn-danger">
+                    Permanently Delete
+                </button>
+
+                <a href="{% url 'students:student_list' %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

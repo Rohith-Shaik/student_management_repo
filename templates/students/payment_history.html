@@ -1,0 +1,64 @@
+
+{% extends 'students/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold">Payment History</h2>
+            <p class="text-muted mb-0">View all recorded student fee payments.</p>
+        </div>
+        <a href="{% url 'students:fee_list' %}" class="btn btn-outline-primary">
+            Back to Fee Records
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Receipt Number</th>
+                            <th>Student</th>
+                            <th>Fee Type</th>
+                            <th>Amount</th>
+                            <th>Payment Date</th>
+                            <th>Payment Method</th>
+                            <th>Notes</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.receipt_number }}</td>
+                            <td>{{ payment.fee_record.student }}</td>
+                            <td>{{ payment.fee_record.fee_type }}</td>
+                            <td class="text-success fw-semibold">
+                                ₹{{ payment.amount|floatformat:2 }}
+                            </td>
+                            <td>{{ payment.payment_date|date:"d M Y" }}</td>
+                            <td>{{ payment.payment_method }}</td>
+                            <td>{{ payment.notes|default:"—" }}</td>
+                            <td>
+                                <a href="{% url 'students:fee_receipt' payment.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View Receipt
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                No payments have been recorded yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

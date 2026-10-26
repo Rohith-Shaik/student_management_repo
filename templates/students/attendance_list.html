@@ -1,0 +1,249 @@
+
+{% extends 'students/base.html' %}
+
+{% block title %}Attendance History & Reports{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2>Attendance History & Reports</h2>
+            <p class="text-muted mb-0">
+                Filter attendance records and review attendance statistics.
+            </p>
+        </div>
+        <a href="{% url 'students:mark_attendance' %}"
+           class="btn btn-primary">
+            Mark Attendance
+        </a>
+    </div>
+
+    <!-- Attendance summary cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Records</h6>
+                    <h3>{{ summary.total }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Present</h6>
+                    <h3 class="text-success">{{ summary.present }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Absent</h6>
+                    <h3 class="text-danger">{{ summary.absent }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Late</h6>
+                    <h3 class="text-warning">{{ summary.late }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Excused</h6>
+                    <h3 class="text-secondary">{{ summary.excused }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Attendance %</h6>
+                    <h3 class="text-primary">
+                        {{ summary.attendance_percentage }}%
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Filter Attendance</h5>
+        </div>
+
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4 col-lg-3">
+                    <label for="q" class="form-label">
+                        Search Student
+                    </label>
+                    <input
+                        type="text"
+                        name="q"
+                        id="q"
+                        value="{{ search }}"
+                        class="form-control"
+                        placeholder="Student ID or name"
+                    >
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All statuses</option>
+                        {% for code, label in status_choices %}
+                            <option value="{{ code }}"
+                                {% if selected_status == code %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <label for="date" class="form-label">
+                        Specific Date
+                    </label>
+                    <input
+                        type="date"
+                        name="date"
+                        id="date"
+                        value="{{ selected_date }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <label for="start_date" class="form-label">
+                        Start Date
+                    </label>
+                    <input
+                        type="date"
+                        name="start_date"
+                        id="start_date"
+                        value="{{ start_date }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <label for="end_date" class="form-label">
+                        End Date
+                    </label>
+                    <input
+                        type="date"
+                        name="end_date"
+                        id="end_date"
+                        value="{{ end_date }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <label for="course" class="form-label">Course</label>
+                    <select name="course" id="course" class="form-select">
+                        <option value="">All Courses</option>
+                        {% for course in courses %}
+                            <option value="{{ course.id }}"
+                                {% if selected_course == course.id|stringformat:"s" %}selected{% endif %}>
+                                {{ course.course_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        Apply Filters
+                    </button>
+
+                    <a href="{% url 'students:attendance_list' %}"
+                       class="btn btn-outline-secondary">
+                        Clear Filters
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attendance records table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Attendance Records</h5>
+            <span class="text-muted small">
+                {{ records|length }} records shown
+            </span>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for record in records %}
+                            <tr>
+                                <td>{{ record.date|date:"d M Y" }}</td>
+                                <td>{{ record.student.student_id }}</td>
+                                <td>
+                                    {{ record.student.first_name }}
+                                    {{ record.student.last_name }}
+                                </td>
+                                <td>
+                                    {% if record.student.course_ref %}
+                                        {{ record.student.course_ref.course_name }}
+                                    {% else %}
+                                        {{ record.student.course }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.status == 'Present' %}
+                                        <span class="badge bg-success">Present</span>
+                                    {% elif record.status == 'Absent' %}
+                                        <span class="badge bg-danger">Absent</span>
+                                    {% elif record.status == 'Late' %}
+                                        <span class="badge bg-warning text-dark">Late</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Excused</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.remarks|default:"—" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <p class="mb-1">No attendance records found.</p>
+                                    <span class="text-muted small">
+                                        Try changing or clearing your filters.
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+
+{% extends 'students/base.html' %}
+
+{% block title %}Fee Recycle Bin{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <div class="mb-4">
+        <h2>Fee Recycle Bin</h2>
+        <p class="text-muted mb-0">
+            Deleted fee records are stored here until restored.
+            Payment history and receipts are preserved.
+        </p>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-danger text-white
+                    d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Deleted Fee Records</h5>
+
+            <a href="{% url 'students:fee_list' %}"
+               class="btn btn-light btn-sm">
+                Back to Fee Records
+            </a>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Fee Type</th>
+                            <th>Academic Year</th>
+                            <th>Total Fee</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Deleted On</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for fee in deleted_fees %}
+                        <tr>
+                            <td>{{ fee.student }}</td>
+                            <td>{{ fee.fee_type }}</td>
+                            <td>{{ fee.academic_year }}</td>
+                            <td>₹{{ fee.total_amount|floatformat:2 }}</td>
+                            <td>₹{{ fee.amount_paid|floatformat:2 }}</td>
+                            <td>₹{{ fee.balance|floatformat:2 }}</td>
+                            <td>
+                                {% if fee.deleted_at %}
+                                    {{ fee.deleted_at|date:"d M Y, h:i A" }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post"
+                                      action="{% url 'students:restore_fee' fee.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn btn-sm btn-success">
+                                        Restore
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <p class="text-muted mb-0">
+                                    The Recycle Bin is empty.
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

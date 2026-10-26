@@ -1,0 +1,82 @@
+
+{% extends 'students/base.html' %}
+
+{% block title %}Complete Student Profile{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white p-3">
+                <h4 class="mb-1">Complete Your Student Profile</h4>
+                <p class="mb-0 small">
+                    Enter your details to access your student dashboard.
+                </p>
+            </div>
+
+            <div class="card-body p-4">
+
+                <div class="alert alert-info">
+                    Logged in as:
+                    <strong>{{ request.user.username }}</strong>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+
+                        {% for field in form %}
+                            <div class="{% if field.name == 'address' %}col-12{% else %}col-md-6{% endif %}">
+
+                                <label for="{{ field.id_for_label }}"
+                                       class="form-label">
+                                    {{ field.label }}
+                                </label>
+
+                                {{ field }}
+
+                                {% if field.help_text %}
+                                    <div class="form-text">
+                                        {{ field.help_text }}
+                                    </div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            Save Profile and Continue
+                        </button>
+
+                        <a href="{% url 'students:student_dashboard' %}"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

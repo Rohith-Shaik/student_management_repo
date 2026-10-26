@@ -1,0 +1,183 @@
+```html
+{% extends 'students/base.html' %}
+
+{% block title %}Student List{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2>Student List</h2>
+
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary">
+            Total Students: {{ total_students }}
+        </span>
+
+        {% if request.user.is_staff %}
+            <a href="{% url 'students:student_create' %}"
+               class="btn btn-success">
+                <i class="bi bi-person-plus"></i>
+                Add Student
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Search Form -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="d-flex gap-2">
+            <input
+                type="search"
+                name="q"
+                value="{{ query }}"
+                class="form-control"
+                placeholder="Search ID, name, email or course"
+            >
+
+            <button class="btn btn-primary" type="submit">
+                Search
+            </button>
+
+            <a href="{% url 'students:student_list' %}"
+               class="btn btn-secondary">
+                Reset
+            </a>
+        </form>
+    </div>
+</div>
+
+<!-- Student Table -->
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Course</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+
+                    {% if request.user.is_staff %}
+                        <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for student in page_obj %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+
+                        <td>
+                            {{ student.first_name }}
+                            {{ student.last_name }}
+                        </td>
+
+                        <td>{{ student.email }}</td>
+
+                        <td>{{ student.course }}</td>
+
+                        <td>{{ student.phone }}</td>
+
+                        <td>
+                            {% if student.is_active %}
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        
+                    {% if request.user.is_staff %}
+                    <td class="text-nowrap">
+                        <a href="{% url 'students:student_update' student.pk %}"
+                           class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+                    
+                        {% if student.is_active %}
+                            <a href="{% url 'students:student_delete' student.pk %}"
+                               class="btn btn-sm btn-secondary">
+                                Deactivate
+                            </a>
+                        {% else %}
+                            <form method="post"
+                                  action="{% url 'students:student_reactivate' student.pk %}"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Reactivate
+                                </button>
+                            </form>
+                        {% endif %}
+                    
+                        <a href="{% url 'students:student_permanent_delete' student.pk %}"
+                           class="btn btn-sm btn-danger">
+                            Delete
+                        </a>
+                    </td>
+                    {% endif %}
+
+                    </tr>
+
+                {% empty %}
+                    <tr>
+                        <td
+                            colspan="{% if request.user.is_staff %}7{% else %}6{% endif %}"
+                            class="text-center py-4">
+                            No students found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-4" aria-label="Student pages">
+        <ul class="pagination justify-content-center">
+
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a
+                        class="page-link"
+                        href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">
+                        Previous
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Page {{ page_obj.number }}
+                    of {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a
+                        class="page-link"
+                        href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">
+                        Next
+                    </a>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+{% endif %}
+
+{% endblock %}
+```

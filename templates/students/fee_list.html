@@ -1,0 +1,251 @@
+
+{% extends 'students/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold">Fee Management</h2>
+            <p class="text-muted mb-0">Manage student fees and payments.</p>
+        </div>
+        <a href="{% url 'students:assign_fee' %}" class="btn btn-primary">
+            + Assign Fee
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Fees Assigned</p>
+                    <h3 class="fw-bold">₹{{ total_fees|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Collected</p>
+                    <h3 class="fw-bold text-success">₹{{ total_paid|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Outstanding Balance</p>
+                    <h3 class="fw-bold text-danger">₹{{ total_balance|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">Student Fee Records</h5>
+        </div>
+        <div class="card-body">
+            
+            <!-- Search and Filters -->
+            <form method="get" class="bg-light border rounded-3 p-3 mb-4">
+                <div class="row g-3 align-items-end">
+            
+                    <div class="col-lg-4 col-md-6">
+                        <label for="feeSearch" class="form-label">Search</label>
+                        <input
+                            type="text"
+                            id="feeSearch"
+                            name="q"
+                            class="form-control"
+                            placeholder="Student, username, fee type..."
+                            value="{{ search_query }}"
+                        >
+                    </div>
+            
+                    <div class="col-lg-2 col-md-6">
+                        <label for="feeStatus" class="form-label">Payment Status</label>
+                        <select id="feeStatus" name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="Pending"
+                                {% if selected_status == 'Pending' %}selected{% endif %}>
+                                Pending
+                            </option>
+                            <option value="Partially Paid"
+                                {% if selected_status == 'Partially Paid' %}selected{% endif %}>
+                                Partially Paid
+                            </option>
+                            <option value="Paid"
+                                {% if selected_status == 'Paid' %}selected{% endif %}>
+                                Paid
+                            </option>
+                        </select>
+                    </div>
+            
+                    <div class="col-lg-2 col-md-6">
+                        <label for="feeYear" class="form-label">Academic Year</label>
+                        <select id="feeYear" name="year" class="form-select">
+                            <option value="">All Years</option>
+                            {% for year in academic_years %}
+                            <option value="{{ year }}"
+                                {% if selected_year == year %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            
+                    <div class="col-lg-2 col-md-6">
+                        <label for="feeType" class="form-label">Fee Type</label>
+                        <select id="feeType" name="fee_type" class="form-select">
+                            <option value="">All Fee Types</option>
+                            {% for type in fee_types %}
+                            <option value="{{ type }}"
+                                {% if selected_fee_type == type %}selected{% endif %}>
+                                {{ type }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            
+                    <div class="col-lg-2 col-md-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            Search
+                        </button>
+                        <a href="{% url 'students:fee_list' %}"
+                           class="btn btn-outline-secondary">
+                            Reset
+                        </a>
+                    </div>
+            
+                </div>
+            </form>
+            <!-- End Search and Filters -->
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Fee Type</th>
+                            <th>Academic Year</th>
+                            <th>Total</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fee in fees %}
+                        <tr>
+                            <td>{{ fee.student }}</td>
+                            <td>{{ fee.fee_type }}</td>
+                            <td>{{ fee.academic_year }}</td>
+                            <td>₹{{ fee.total_amount|floatformat:2 }}</td>
+                            <td>₹{{ fee.amount_paid|floatformat:2 }}</td>
+                            <td>₹{{ fee.balance|floatformat:2 }}</td>
+                            <td>
+                                {% if fee.payment_status == 'Paid' %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% elif fee.payment_status == 'Partially Paid' %}
+                                    <span class="badge bg-warning text-dark">Partially Paid</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ fee.due_date|date:"d M Y"|default:"—" }}</td>
+                            <td>
+                                {% if fee.balance > 0 %}
+                                <a href="{% url 'students:record_fee_payment' fee.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Record Payment
+                                </a>
+                                {% else %}
+                                <span class="text-success">Completed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                            <div class="d-flex flex-wrap gap-2">
+                        
+                                <a href="{% url 'students:edit_fee' fee.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Edit
+                                </a>
+                        
+                                <form method="post"
+                                      action="{% url 'students:delete_fee' fee.id %}"
+                                      onsubmit="return confirm(
+                                          'Delete this fee record? Records with payments cannot be deleted.'
+                                      );">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </button>
+                                </form>
+                        
+                            </div>
+                        </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">
+                                No fee records found. Click "Assign Fee" to add one.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <nav aria-label="Fee records pagination" class="mt-4">
+                    <ul class="pagination justify-content-center flex-wrap">
+                
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&year={{ selected_year|urlencode }}&fee_type={{ selected_fee_type|urlencode }}&page={{ page_obj.previous_page_number }}">
+                                Previous
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                        {% endif %}
+                
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&year={{ selected_year|urlencode }}&fee_type={{ selected_fee_type|urlencode }}&page={{ page_obj.next_page_number }}">
+                                Next
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                        {% endif %}
+                
+                    </ul>
+                </nav>
+                {% endif %}
+                <!-- End Pagination -->
+
+            <a href="{% url 'students:fee_payment_history' %}"
+               class="btn btn-outline-secondary mt-3">
+                View Payment History
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
